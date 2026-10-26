@@ -105,7 +105,7 @@ if uploaded_files and st.button("Translate", type="primary"):
         except requests.exceptions.ConnectionError:
             errors.append(
                 f"Cannot reach the API at {API_BASE_URL}. "
-                "Start the backend first: python -m uvicorn app.main:app --port 8000"
+                "Start the application with: python run.py"
             )
             break
         except requests.exceptions.Timeout:

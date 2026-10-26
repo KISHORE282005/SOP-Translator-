@@ -22,19 +22,29 @@ pip install -r requirements.txt
 # 2. Create your configuration (the defaults work without any changes)
 Copy-Item .env.example .env
 
-# 3. Start the API
-python -m uvicorn app.main:app --port 8000
+# 3. Start the application (API + web page)
+python run.py
 ```
 
-In a second terminal (activate the virtual environment again):
-
-```powershell
-python -m streamlit run frontend/streamlit_app.py   # Main command
-```
+`run.py` starts the FastAPI backend, waits until it is ready, then starts the Streamlit frontend. Press **Ctrl+C** once to stop both.
 
 Open [http://localhost:8501](http://localhost:8501), upload a PO workbook, click **Translate**, then download the result.
 
 The API documentation (Swagger UI) is at [http://localhost:8000/docs](http://localhost:8000/docs).
+
+To use other ports, set `API_PORT` and `UI_PORT` in `.env` or the environment (defaults `8000` and `8501`). If you change `UI_PORT`, add the new address to `CORS_ORIGINS`.
+
+<details>
+<summary>Running the two parts separately</summary>
+
+```powershell
+# Terminal 1
+python -m uvicorn app.main:app --port 8000
+# Terminal 2
+python -m streamlit run frontend/streamlit_app.py
+```
+
+</details>
 
 ## Configuration
 
@@ -52,6 +62,8 @@ Settings are read from environment variables or from a `.env` file in this folde
 | `OUTPUT_DIR`                    | `outputs`                                     | Where translated files are stored            |
 | `CORS_ORIGINS`                  | `http://localhost:8501,http://127.0.0.1:8501` | Origins allowed to call the API              |
 | `API_BASE_URL`                  | `http://localhost:8000`                       | API address used by the Streamlit frontend   |
+| `API_PORT`                      | `8000`                                        | API port used by `run.py`                    |
+| `UI_PORT`                       | `8501`                                        | Streamlit port used by `run.py`              |
 
 ### Translation providers
 
@@ -153,6 +165,7 @@ po_translation_system/
 │   ├── models/schemas.py           API response models
 │   └── utils/                      Logging, validation, filename helpers
 ├── frontend/streamlit_app.py       Streamlit user interface
+├── run.py                          Starts the API and the frontend with one command
 ├── tests/                          pytest test suite
 ├── uploads/                        Uploaded files (created at runtime)
 ├── outputs/                        Translated files (created at runtime)
@@ -178,7 +191,7 @@ python -c "from pathlib import Path; from app.services.excel_service import Exce
 
 | Problem                                                              | Cause and fix                                                                                                                                                                                                                                        |
 | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend shows "Cannot reach the API"                                | The backend is not running, or`API_BASE_URL` points to the wrong address.                                                                                                                                                                          |
+| Frontend shows "Cannot reach the API"                                | The backend is not running (start with`python run.py`), or `API_BASE_URL` points to the wrong address.                                                                                                                                                                          |
 | "Translation service is temporarily unavailable"                     | With`google_free`: Google is rate limiting your IP address. Wait and retry, or switch to the `google` provider. With `google`: check `TRANSLATION_API_KEY` and that the Cloud Translation API is enabled. The API log shows the exact error. |
 | "The uploaded workbook does not contain usable data for translation" | The workbook has no English text cells, only numbers, codes or formulas.                                                                                                                                                                             |
 | The logo is missing in the output                                    | Pillow is not installed. Run`pip install -r requirements.txt`.                                                                                                                                                                                     |
