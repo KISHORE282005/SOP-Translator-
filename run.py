@@ -9,6 +9,7 @@ Press Ctrl+C to stop both.
 """
 
 import os
+import socket
 import subprocess
 import sys
 import time
@@ -26,6 +27,13 @@ os.environ.setdefault("API_BASE_URL", f"http://localhost:{API_PORT}")
 
 HEALTH_URL = f"http://127.0.0.1:{API_PORT}/health"
 STARTUP_TIMEOUT = 30  # seconds to wait for the API to come up
+
+
+def port_in_use(port: str) -> bool:
+    """Return True if something is already listening on the local port."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.settimeout(1)
+        return sock.connect_ex(("127.0.0.1", int(port))) == 0
 
 
 def wait_for_api(api: subprocess.Popen) -> bool:
@@ -53,6 +61,15 @@ def stop(process: subprocess.Popen) -> None:
 
 
 def main() -> int:
+    busy = [port for port in (API_PORT, UI_PORT) if port_in_use(port)]
+    if busy:
+        print(
+            f"Port {' and '.join(busy)} already in use. The application may already be running:\n"
+            "close the other terminal(s) running it, or set API_PORT / UI_PORT to free ports.",
+            file=sys.stderr,
+        )
+        return 1
+
     api = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "app.main:app", "--port", API_PORT],
         cwd=BASE_DIR,

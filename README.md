@@ -62,8 +62,8 @@ Settings are read from environment variables or from a `.env` file in this folde
 | `OUTPUT_DIR`                    | `outputs`                                     | Where translated files are stored            |
 | `CORS_ORIGINS`                  | `http://localhost:8501,http://127.0.0.1:8501` | Origins allowed to call the API              |
 | `API_BASE_URL`                  | `http://localhost:8000`                       | API address used by the Streamlit frontend   |
-| `API_PORT`                      | `8000`                                        | API port used by `run.py`                    |
-| `UI_PORT`                       | `8501`                                        | Streamlit port used by `run.py`              |
+| `API_PORT`                      | `8000`                                        | API port used by `run.py`                  |
+| `UI_PORT`                       | `8501`                                        | Streamlit port used by `run.py`            |
 
 ### Translation providers
 
@@ -191,8 +191,9 @@ python -c "from pathlib import Path; from app.services.excel_service import Exce
 
 | Problem                                                              | Cause and fix                                                                                                                                                                                                                                        |
 | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend shows "Cannot reach the API"                                | The backend is not running (start with`python run.py`), or `API_BASE_URL` points to the wrong address.                                                                                                                                                                          |
+| Frontend shows "Cannot reach the API"                                | The backend is not running (start with`python run.py`), or `API_BASE_URL` points to the wrong address.                                                                                                                                           |
 | "Translation service is temporarily unavailable"                     | With`google_free`: Google is rate limiting your IP address. Wait and retry, or switch to the `google` provider. With `google`: check `TRANSLATION_API_KEY` and that the Cloud Translation API is enabled. The API log shows the exact error. |
 | "The uploaded workbook does not contain usable data for translation" | The workbook has no English text cells, only numbers, codes or formulas.                                                                                                                                                                             |
 | The logo is missing in the output                                    | Pillow is not installed. Run`pip install -r requirements.txt`.                                                                                                                                                                                     |
+| "Port 8000 and 8501 already in use"                                  | The application is already running in another terminal. Close it (Ctrl+C there), or set `API_PORT` / `UI_PORT` to free ports. |
 | `ModuleNotFoundError: No module named 'app'`                       | Run the commands from the`po_translation_system` folder.                                                                                                                                                                                           |
